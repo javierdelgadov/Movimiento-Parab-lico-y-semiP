@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<title>Laboratorio de Movimiento Parabólico</title>
+<style>
+:root{
+  --bg:#eaf1ff;
+  --bg2:#f7faff;
+  --ink:#0f172a;
+  --muted:#5b6b85;
+  --card:#ffffff;
+  --line:#d9e3f3;
+  --blue:#2563eb;
+  --blue2:#60a5fa;
+  --teal:#14b8a6;
+  --gold:#f59e0b;
+  --rose:#e11d48;
+  --shadow:0 20px 50px rgba(37,99,235,.12);
+  --radius:22px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color:var(--ink);
+  background:
+    radial-gradient(circle at top left, rgba(96,165,250,.25), transparent 28%),
+    radial-gradient(circle at top right, rgba(20,184,166,.18), transparent 22%),
+    linear-gradient(180deg, #f5f9ff 0%, #edf4ff 38%, #eaf1ff 100%);
+  min-height:100vh;
+}
+header{
+  position:sticky; top:0; z-index:100;
+  background:rgba(245,249,255,.82);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid rgba(15,23,42,.06);
+}
+.wrap{max-width:1240px; margin:auto; padding:0 18px}
+.topbar{
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  padding:14px 0;
+}
+.brand{display:flex; gap:14px; align-items:center}
+.logo{
+  width:54px; height:54px; border-radius:18px;
+  background:linear-gradient(135deg, var(--blue), var(--teal));
+  display:grid; place-items:center; color:#fff; font-size:28px; font-weight:900;
+  box-shadow:0 14px 30px rgba(37,99,235,.25);
+}
+.topbar h1{margin:0; font-size:clamp(20px, 3vw, 30px); line-height:1.05}
+.topbar p{margin:3px 0 0; color:var(--muted); font-size:13px}
+.chip{
+  padding:10px 14px; border-radius:999px; font-weight:800; font-size:12px;
+  border:1px solid #cce0ff; color:#0b4ecb; background:#eff6ff;
+}
+main{padding:24px 0 36px}
+.hero{
+  display:grid; grid-template-columns:1.15fr .85fr; gap:18px; margin-bottom:18px;
+}
+.card{
+  background:var(--card);
+  border:1px solid rgba(15,23,42,.06);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:22px;
+}
+.hero-main{
+  background:
+    linear-gradient(135deg, rgba(37,99,235,.95), rgba(20,184,166,.92)),
+    linear-gradient(180deg, #1d4ed8, #0f766e);
+  color:#fff;
+  overflow:hidden;
+  position:relative;
+}
+.hero-main:before{
+  content:"";
+  position:absolute; inset:auto -80px -100px auto;
+  width:280px; height:280px; border-radius:50%;
+  background:rgba(255,255,255,.12);
+}
+.badge{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:8px 12px; border-radius:999px; background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.25); font-size:12px; font-weight:700;
+}
+.hero-main h2{
+  margin:14px 0 10px;
+  font-size:clamp(28px, 5vw, 50px);
+  line-height:1.02;
+}
+.hero-main p{max-width:800px; line-height:1.65; color:rgba(255,255,255,.92)}
+.highlight-row{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:16px}
+.highlight{
+  background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.16);
+  border-radius:18px; padding:14px;
+}
+.highlight b{display:block; font-size:20px; margin-bottom:4px}
+.hero-side h3,.controls h3,.sim h3,.pred h3,.table-card h3{margin-top:0}
+.mode-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+.mode-btn{
+  border:1px solid var(--line);
+  background:linear-gradient(180deg,#ffffff,#f6f9ff);
+  border-radius:20px; padding:18px; text-align:left; cursor:pointer;
+  transition:.22s ease; min-height:150px;
+}
+.mode-btn:hover,.mode-btn.active{
+  transform:translateY(-2px);
+  border-color:#b9d4ff;
+  box-shadow:0 16px 30px rgba(96,165,250,.18);
+}
+.mode-btn .emoji{font-size:34px}
+.mode-btn strong{display:block; margin:10px 0 7px; font-size:18px}
+.mode-btn small{display:block; color:var(--muted); line-height:1.45; font-size:13px}
+.grid{
+  display:grid; grid-template-columns:390px 1fr; gap:18px;
+}
+.panel-title{
+  display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:8px;
+}
+.pill{
+  display:inline-flex; padding:7px 10px; border-radius:999px;
+  background:#eff6ff; color:#2455c3; font-size:12px; font-weight:700; border:1px solid #d7e7ff;
+}
+.field{margin:16px 0}
+.field label{
+  display:flex; justify-content:space-between; gap:10px; margin-bottom:8px;
+  font-size:13px; color:var(--muted); font-weight:600;
+}
+.field label b{color:var(--ink)}
+input[type=range]{width:100%; accent-color:var(--blue)}
+input[type=number]{
+  width:100%; padding:12px 14px; font-size:15px;
+  border-radius:14px; border:1px solid var(--line); background:#fbfdff; color:var(--ink);
+  outline:none;
+}
+input[type=number]:focus{border-color:#8eb6ff; box-shadow:0 0 0 4px rgba(96,165,250,.15)}
+.actions{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px}
+button{
+  font:inherit; cursor:pointer;
+}
+.btn{
+  border:0; border-radius:15px; padding:13px 15px; font-weight:800; transition:.18s ease;
+}
+.btn:hover{transform:translateY(-1px)}
+.primary{background:linear-gradient(135deg, var(--blue), var(--teal)); color:#fff; box-shadow:0 12px 22px rgba(37,99,235,.2)}
+.secondary{background:#f7faff; color:#15315f; border:1px solid var(--line)}
+.tip{
+  margin-top:12px; padding:12px 14px; border-radius:16px;
+  background:#f8fbff; border:1px dashed #c9dcfb; color:#48627f; font-size:13px; line-height:1.55;
+}
+.formula{
+  margin-top:14px; border-radius:18px; padding:15px;
+  background:linear-gradient(180deg,#f7fbff,#f2f7ff);
+  border:1px solid #d7e4f7; font-family:ui-monospace, SFMono-Regular, Menlo, monospace;
+  color:#21406b; line-height:1.7; font-size:13px;
+}
+.canvas-card{
+  padding:16px;
+  background:linear-gradient(180deg,#f9fbff,#f5f9ff);
+  border:1px solid #dce8fb;
+  border-radius:22px;
+}
+.canvas-wrap{
+  position:relative;
+  border-radius:20px;
+  overflow:hidden;
+  border:1px solid #d9e7fb;
+  background:linear-gradient(#b8dcff 0 68%, #9bcb89 68% 100%);
+}
+.canvas-wrap canvas{width:100%; height:455px; display:block}
+.legend{
+  position:absolute; top:12px; left:12px; background:rgba(255,255,255,.88);
+  border:1px solid rgba(15,23,42,.08); border-radius:12px; padding:8px 10px;
+  font-size:12px; color:#28415e; font-weight:700; backdrop-filter:blur(6px);
+}
+.legend i{display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:6px; vertical-align:middle}
+.stats{
+  margin-top:16px;
+  display:grid; grid-template-columns:repeat(4,1fr); gap:10px;
+}
+.stat{
+  background:linear-gradient(180deg,#ffffff,#f8fbff);
+  border:1px solid #dbe6f6; border-radius:18px; padding:14px;
+}
+.stat .k{font-size:12px; color:var(--muted); font-weight:700}
+.stat .v{font-size:28px; font-weight:900; margin-top:4px; color:#10396d}
+.stat .u{font-size:12px; color:var(--muted)}
+.pred-grid{
+  display:grid; grid-template-columns:repeat(4,1fr); gap:12px; align-items:end;
+}
+.msg{
+  margin-top:12px; min-height:22px; font-weight:800; font-size:14px;
+}
+.good{color:#15803d}.warn{color:#b45309}.bad{color:#be123c}
+.table-wrap{
+  overflow:auto; max-height:360px; border:1px solid #dce7f7; border-radius:18px;
+  background:#fff;
+}
+table{width:100%; border-collapse:collapse; font-size:12px}
+th,td{padding:9px 10px; border-bottom:1px solid #ecf2fb; text-align:right}
+th:first-child,td:first-child{text-align:center}
+th{
+  position:sticky; top:0; background:#f3f8ff; color:#21406b; font-size:12px;
+}
+.footer{
+  color:#6d7f97; font-size:12px; text-align:center; padding:26px 6px 10px;
+}
+.hidden{display:none !important}
+@media (max-width:980px){
+  .hero,.grid{grid-template-columns:1fr}
+  .stats,.pred-grid{grid-template-columns:1fr 1fr}
+}
+@media (max-width:620px){
+  .wrap{padding:0 12px}
+  main{padding:14px 0 28px}
+  .card{padding:16px; border-radius:18px}
+  .highlight-row,.mode-grid,.actions,.pred-grid{grid-template-columns:1fr}
+  .stats{grid-template-columns:1fr 1fr}
+  .canvas-wrap canvas{height:360px}
+  .topbar{padding:11px 0}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">↗</div>
+        <div>
+          <p style="margin:0 0 4px; font-size:12px; font-weight:800; letter-spacing:.4px; color:#2455c3;">INSTITUCION EDUCATIVA JULIA RESTREPO</p>
+          <h1 style="margin:0;">Laboratorio de Tiro 2D</h1>
+          <p style="margin:3px 0 0; color:#5b6b85; font-size:13px;">Movimiento semiparabólico y parabólico · Mg Javier Delgado</p>
+        </div>
+      </div>
+      <div class="chip">Sin internet</div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <div class="card hero-main">
+      <span class="badge">Predice · Simula · Compara</span>
+      <h2>Aprender física viendo el movimiento en acción.</h2>
+      <p>
+        Esta app permite que los estudiantes comprendan la relación entre velocidad, ángulo, altura y gravedad.
+        Primero hacen una predicción, después observan la trayectoria y finalmente comparan sus resultados.
+      </p>
+      <div class="highlight-row">
+        <div class="highlight"><b>2 modos</b><span>Semiparabólico y parabólico</span></div>
+        <div class="highlight"><b>4 resultados</b><span>Tiempo, alcance, altura y rapidez</span></div>
+        <div class="highlight"><b>Datos</b><span>Tabla y descarga en CSV</span></div>
+      </div>
+    </div>
+
+    <div class="card hero-side">
+      <h3>Selecciona el laboratorio</h3>
+      <div class="mode-grid">
+        <button class="mode-btn active" id="semiBtn">
+          <div class="emoji">➡️</div>
+          <strong>Semiparabólico</strong>
+          <small>Lanzamiento horizontal desde una altura. Ideal para estudiar la independencia entre el movimiento horizontal y el vertical.</small>
+        </button>
+        <button class="mode-btn" id="paraBtn">
+          <div class="emoji">🏹</div>
+          <strong>Parabólico</strong>
+          <small>Lanzamiento oblicuo con velocidad inicial y ángulo. Ideal para analizar alcance, altura máxima y tiempo de vuelo.</small>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="grid">
+    <div class="card controls">
+      <div class="panel-title">
+        <h3>Condiciones iniciales</h3>
+        <span class="pill" id="modePill">Modo: Semiparabólico</span>
+      </div>
+
+      <div id="semiControls">
+        <div class="field">
+          <label>Velocidad horizontal <b><span id="vxVal">12</span> m/s</b></label>
+          <input id="vx" type="range" min="2" max="30" step="0.5" value="12">
+        </div>
+        <div class="field">
+          <label>Altura de lanzamiento <b><span id="hSemiVal">20</span> m</b></label>
+          <input id="hSemi" type="range" min="2" max="60" step="1" value="20">
+        </div>
+      </div>
+
+      <div id="paraControls" class="hidden">
+        <div class="field">
+          <label>Velocidad inicial <b><span id="v0Val">20</span> m/s</b></label>
+          <input id="v0" type="range" min="4" max="45" step="0.5" value="20">
+        </div>
+        <div class="field">
+          <label>Ángulo de lanzamiento <b><span id="angVal">45</span>°</b></label>
+          <input id="ang" type="range" min="5" max="85" step="1" value="45">
+        </div>
+        <div class="field">
+          <label>Altura inicial <b><span id="hParaVal">0</span> m</b></label>
+          <input id="hPara" type="range" min="0" max="25" step="1" value="0">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Gravedad <b><span id="gVal">9.8</span> m/s²</b></label>
+        <input id="g" type="range" min="1.6" max="15" step="0.1" value="9.8">
+      </div>
+
+      <div class="actions">
+        <button class="btn primary" id="playBtn">▶ Simular</button>
+        <button class="btn secondary" id="pauseBtn">⏸ Pausar</button>
+        <button class="btn secondary" id="resetBtn">↺ Reiniciar</button>
+        <button class="btn secondary" id="tableBtn">▦ Ver tabla</button>
+      </div>
+
+      <div class="tip">
+        <b>Sugerencia didáctica:</b> antes de simular, calcula a mano el tiempo de vuelo y el alcance. 
+        Luego usa la app para verificar tus resultados.
+      </div>
+
+      <div class="formula" id="formulaBox"></div>
+    </div>
+
+    <div class="card sim">
+      <h3 id="simTitle">Trayectoria semiparabólica</h3>
+      <div class="canvas-card">
+        <div class="canvas-wrap">
+          <canvas id="canvas" width="900" height="455"></canvas>
+          <div class="legend">
+            <i style="background:#14b8a6"></i> Trayectoria
+            &nbsp;&nbsp;
+            <i style="background:#f59e0b"></i> Proyectil
+            &nbsp;&nbsp;
+            <i style="background:#2563eb"></i> Velocidad
+          </div>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><div class="k">Tiempo de vuelo</div><div class="v" id="timeOut">—</div><div class="u">s</div></div>
+        <div class="stat"><div class="k">Alcance horizontal</div><div class="v" id="rangeOut">—</div><div class="u">m</div></div>
+        <div class="stat"><div class="k">Altura máxima</div><div class="v" id="hmaxOut">—</div><div class="u">m</div></div>
+        <div class="stat"><div class="k">Rapidez al impactar</div><div class="v" id="speedOut">—</div><div class="u">m/s</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card pred" style="margin-top:18px">
+    <h3>Reto de predicción</h3>
+    <div class="pred-grid">
+      <div class="field" style="margin:0">
+        <label>Mi tiempo de vuelo (s)</label>
+        <input id="predT" type="number" step="0.01" placeholder="Ej. 2.02">
+      </div>
+      <div class="field" style="margin:0">
+        <label>Mi alcance (m)</label>
+        <input id="predR" type="number" step="0.01" placeholder="Ej. 24.24">
+      </div>
+      <button class="btn primary" id="checkBtn">Comparar</button>
+      <button class="btn secondary" id="newChallengeBtn">🎲 Nuevo reto</button>
+    </div>
+    <div id="feedback" class="msg"></div>
+  </section>
+
+  <section class="card table-card" id="tableCard" style="margin-top:18px">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+      <div>
+        <h3 style="margin-bottom:4px">Tabla de datos</h3>
+        <div style="font-size:13px;color:var(--muted)">Valores calculados durante la trayectoria.</div>
+      </div>
+      <button class="btn secondary" id="csvBtn">Descargar CSV</button>
+    </div>
+    <div class="table-wrap" style="margin-top:14px">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>t (s)</th><th>x (m)</th><th>y (m)</th><th>vₓ (m/s)</th><th>vᵧ (m/s)</th><th>|v| (m/s)</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="footer">Institución Educativa Julia Restrepo · Mg Javier Delgado · Modelo ideal sin resistencia del aire · Diseñado para Classroom</div>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+const C=$("canvas"), ctx=C.getContext("2d");
+let mode="semi", anim=null, paused=false, simT=0, current=null, rows=[], start=0;
+
+const els={
+  vx:$("vx"), hSemi:$("hSemi"), v0:$("v0"), ang:$("ang"), hPara:$("hPara"), g:$("g"),
+  vxVal:$("vxVal"), hSemiVal:$("hSemiVal"), v0Val:$("v0Val"), angVal:$("angVal"), hParaVal:$("hParaVal"), gVal:$("gVal")
+};
+
+function fmt(n,d=2){ return Number(n).toFixed(d); }
+
+function params(){
+  const g=+els.g.value;
+  if(mode==="semi"){
+    const vx=+els.vx.value, h=+els.hSemi.value;
+    const tf=Math.sqrt(2*h/g);
+    const R=vx*tf;
+    const vyf=-g*tf;
+    const speed=Math.hypot(vx,vyf);
+    return {g,h,vx,vy0:0,v0:vx,tf,R,hmax:h,speed};
+  }else{
+    const v0=+els.v0.value, a=+els.ang.value*Math.PI/180, h=+els.hPara.value;
+    const vx=v0*Math.cos(a), vy0=v0*Math.sin(a);
+    const tf=(vy0+Math.sqrt(vy0*vy0+2*g*h))/g;
+    const R=vx*tf;
+    const hmax=h+(vy0*vy0)/(2*g);
+    const vyf=vy0-g*tf;
+    const speed=Math.hypot(vx,vyf);
+    return {g,h,vx,vy0,v0,a,tf,R,hmax,speed};
+  }
+}
+
+function stateAt(t,p){
+  return {
+    x:p.vx*t,
+    y:p.h + p.vy0*t - 0.5*p.g*t*t,
+    vx:p.vx,
+    vy:p.vy0 - p.g*t
+  };
+}
+
+function updateLabels(){
+  els.vxVal.textContent=els.vx.value;
+  els.hSemiVal.textContent=els.hSemi.value;
+  els.v0Val.textContent=els.v0.value;
+  els.angVal.textContent=els.ang.value;
+  els.hParaVal.textContent=els.hPara.value;
+  els.gVal.textContent=els.g.value;
+
+  const p=params();
+  $("timeOut").textContent=fmt(p.tf);
+  $("rangeOut").textContent=fmt(p.R);
+  $("hmaxOut").textContent=fmt(p.hmax);
+  $("speedOut").textContent=fmt(p.speed);
+
+  $("formulaBox").innerHTML = mode==="semi"
+    ? "<b>Movimiento semiparabólico</b><br>x = vₓ·t<br>y = h − ½gt²<br>t<sub>vuelo</sub> = √(2h/g)<br>R = vₓ·t<sub>vuelo</sub>"
+    : "<b>Movimiento parabólico</b><br>vₓ = v₀ cosθ<br>vᵧ₀ = v₀ senθ<br>x = vₓ·t<br>y = h + vᵧ₀t − ½gt²";
+
+  $("modePill").textContent = mode==="semi" ? "Modo: Semiparabólico" : "Modo: Parabólico";
+  buildRows();
+  draw(simT);
+}
+
+function fitCanvas(){
+  const rect=C.getBoundingClientRect();
+  const dpr=Math.min(window.devicePixelRatio || 1, 2);
+  C.width=Math.round(rect.width*dpr);
+  C.height=Math.round(rect.height*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  draw(simT);
+}
+
+function draw(t=0){
+  const p=params();
+  const w=C.clientWidth, h=C.clientHeight;
+  ctx.clearRect(0,0,w,h);
+
+  // Sky gradient
+  const sky=ctx.createLinearGradient(0,0,0,h);
+  sky.addColorStop(0,"#b8dcff");
+  sky.addColorStop(0.68,"#d9eeff");
+  sky.addColorStop(0.681,"#9bcb89");
+  sky.addColorStop(1,"#77ad63");
+  ctx.fillStyle=sky;
+  ctx.fillRect(0,0,w,h);
+
+  // Decorative clouds
+  function cloud(x,y,s){
+    ctx.fillStyle="rgba(255,255,255,.65)";
+    ctx.beginPath();
+    ctx.arc(x,y,s,0,Math.PI*2);
+    ctx.arc(x+s*0.8,y-s*0.2,s*0.78,0,Math.PI*2);
+    ctx.arc(x+s*1.55,y,s*0.92,0,Math.PI*2);
+    ctx.arc(x+s*0.7,y+s*0.35,s*0.95,0,Math.PI*2);
+    ctx.fill();
+  }
+  cloud(w*0.10, h*0.16, 16);
+  cloud(w*0.72, h*0.12, 14);
+
+  const padL=50, padR=28, padT=28, padB=46;
+  const maxX=Math.max(p.R*1.15, 10);
+  const maxY=Math.max(p.hmax*1.20, 10);
+  const sx=(w-padL-padR)/maxX;
+  const sy=(h-padT-padB)/maxY;
+  const s=Math.min(sx,sy);
+  const ox=padL, oy=h-padB;
+
+  // Grid
+  ctx.strokeStyle="rgba(15,23,42,.09)";
+  ctx.lineWidth=1;
+  for(let i=0;i<=10;i++){
+    let x=padL+i*(w-padL-padR)/10;
+    ctx.beginPath(); ctx.moveTo(x,padT); ctx.lineTo(x,oy); ctx.stroke();
+  }
+  for(let i=0;i<=8;i++){
+    let y=padT+i*(oy-padT)/8;
+    ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(w-padR,y); ctx.stroke();
+  }
+
+  // Axes
+  ctx.strokeStyle="rgba(15,23,42,.26)";
+  ctx.lineWidth=1.4;
+  ctx.beginPath(); ctx.moveTo(padL,padT); ctx.lineTo(padL,oy); ctx.lineTo(w-padR,oy); ctx.stroke();
+
+  ctx.fillStyle="#36516f";
+  ctx.font="12px system-ui";
+  ctx.fillText("0", padL-12, oy+16);
+  ctx.fillText(fmt(maxX,0)+" m", w-padR-38, oy+17);
+  ctx.fillText(fmt(maxY,0)+" m", padL+4, padT+14);
+
+  // Platform
+  if(p.h>0){
+    ctx.fillStyle="#7b8ba5";
+    ctx.fillRect(ox-8, oy-p.h*s, 16, p.h*s);
+    ctx.fillStyle="#97a6bc";
+    ctx.fillRect(ox-18, oy-p.h*s-6, 36, 7);
+  }
+
+  // Trajectory
+  ctx.strokeStyle="#14b8a6";
+  ctx.lineWidth=3;
+  ctx.beginPath();
+  const N=120;
+  for(let i=0;i<=N;i++){
+    const tt=p.tf*i/N, st=stateAt(tt,p);
+    const X=ox+st.x*s, Y=oy-st.y*s;
+    if(i===0) ctx.moveTo(X,Y); else ctx.lineTo(X,Y);
+  }
+  ctx.stroke();
+
+  const tt=Math.max(0,Math.min(t,p.tf));
+  const st=stateAt(tt,p);
+  const X=ox+st.x*s, Y=oy-st.y*s;
+
+  // Velocity vector
+  const vscale=2.3;
+  ctx.strokeStyle="#2563eb";
+  ctx.lineWidth=2.5;
+  ctx.beginPath();
+  ctx.moveTo(X,Y);
+  ctx.lineTo(X+st.vx*vscale, Y-st.vy*vscale);
+  ctx.stroke();
+
+  // Projectile
+  ctx.beginPath();
+  ctx.arc(X,Y,8.2,0,Math.PI*2);
+  ctx.fillStyle="#f59e0b";
+  ctx.fill();
+  ctx.strokeStyle="rgba(255,255,255,.8)";
+  ctx.lineWidth=1.5;
+  ctx.stroke();
+
+  // Label bubble
+  const txt="t = "+fmt(tt)+" s";
+  ctx.font="12px system-ui";
+  const tw=ctx.measureText(txt).width;
+  const bx=Math.min(X+12, w- tw - 22), by=Math.max(18, Y-28);
+  ctx.fillStyle="rgba(255,255,255,.9)";
+  roundRect(ctx,bx-8,by-14,tw+16,24,10,true,false);
+  ctx.fillStyle="#21406b";
+  ctx.fillText(txt,bx,by+2);
+}
+
+function roundRect(ctx, x, y, w, h, r, fill, stroke){
+  if (typeof r === 'number') r = {tl:r,tr:r,br:r,bl:r};
+  ctx.beginPath();
+  ctx.moveTo(x+r.tl, y);
+  ctx.lineTo(x+w-r.tr, y);
+  ctx.quadraticCurveTo(x+w, y, x+w, y+r.tr);
+  ctx.lineTo(x+w, y+h-r.br);
+  ctx.quadraticCurveTo(x+w, y+h, x+w-r.br, y+h);
+  ctx.lineTo(x+r.bl, y+h);
+  ctx.quadraticCurveTo(x, y+h, x, y+h-r.bl);
+  ctx.lineTo(x, y+r.tl);
+  ctx.quadraticCurveTo(x, y, x+r.tl, y);
+  ctx.closePath();
+  if(fill) ctx.fill();
+  if(stroke) ctx.stroke();
+}
+
+function buildRows(){
+  const p=params();
+  rows=[];
+  const N=12;
+  for(let i=0;i<=N;i++){
+    let t=p.tf*i/N;
+    let st=stateAt(t,p);
+    rows.push({
+      i,t,
+      x:st.x,
+      y:Math.max(0,st.y),
+      vx:st.vx,
+      vy:st.vy,
+      v:Math.hypot(st.vx,st.vy)
+    });
+  }
+  $("tbody").innerHTML = rows.map(r => `
+    <tr>
+      <td>${r.i}</td>
+      <td>${fmt(r.t)}</td>
+      <td>${fmt(r.x)}</td>
+      <td>${fmt(r.y)}</td>
+      <td>${fmt(r.vx)}</td>
+      <td>${fmt(r.vy)}</td>
+      <td>${fmt(r.v)}</td>
+    </tr>
+  `).join("");
+}
+
+function play(){
+  cancelAnimationFrame(anim);
+  current=params();
+  paused=false;
+  start=performance.now() - (simT/current.tf)*2800;
+  function frame(now){
+    if(paused) return;
+    let progress=(now-start)/2800;
+    simT=Math.min(current.tf, progress*current.tf);
+    draw(simT);
+    if(progress<1) anim=requestAnimationFrame(frame);
+  }
+  anim=requestAnimationFrame(frame);
+}
+
+function pause(){
+  if(paused){
+    paused=false;
+    play();
+  }else{
+    paused=true;
+    cancelAnimationFrame(anim);
+  }
+}
+
+function reset(){
+  cancelAnimationFrame(anim);
+  paused=false;
+  simT=0;
+  draw(0);
+}
+
+function setMode(m){
+  mode=m;
+  $("semiBtn").classList.toggle("active", m==="semi");
+  $("paraBtn").classList.toggle("active", m==="para");
+  $("semiControls").classList.toggle("hidden", m!=="semi");
+  $("paraControls").classList.toggle("hidden", m!=="para");
+  $("simTitle").textContent = m==="semi" ? "Trayectoria semiparabólica" : "Trayectoria parabólica";
+  $("predT").value="";
+  $("predR").value="";
+  $("feedback").textContent="";
+  $("feedback").className="msg";
+  reset();
+  updateLabels();
+}
+
+function compare(){
+  const p=params();
+  const pt=parseFloat($("predT").value);
+  const pr=parseFloat($("predR").value);
+  const f=$("feedback");
+
+  if(!Number.isFinite(pt) || !Number.isFinite(pr)){
+    f.className="msg warn";
+    f.textContent="Escribe tus dos predicciones antes de comparar.";
+    return;
+  }
+
+  const et=Math.abs(pt-p.tf)/p.tf*100;
+  const er=Math.abs(pr-p.R)/p.R*100;
+  const avg=(et+er)/2;
+
+  f.className="msg " + (avg<=5 ? "good" : avg<=15 ? "warn" : "bad");
+  if(avg<=5){
+    f.textContent=`¡Excelente! Error en tiempo: ${fmt(et,1)}% · Error en alcance: ${fmt(er,1)}%.`;
+  }else if(avg<=15){
+    f.textContent=`Vas bien. Error en tiempo: ${fmt(et,1)}% · Error en alcance: ${fmt(er,1)}%. Revisa un poco tus cálculos.`;
+  }else{
+    f.textContent=`Revisa las ecuaciones. Error en tiempo: ${fmt(et,1)}% · Error en alcance: ${fmt(er,1)}%.`;
+  }
+}
+
+function challenge(){
+  if(mode==="semi"){
+    els.vx.value=(5+Math.random()*20).toFixed(1);
+    els.hSemi.value=Math.round(5+Math.random()*45);
+  }else{
+    els.v0.value=(8+Math.random()*27).toFixed(1);
+    els.ang.value=Math.round(20+Math.random()*50);
+    els.hPara.value=Math.random()<0.5 ? 0 : Math.round(2+Math.random()*15);
+  }
+  $("predT").value="";
+  $("predR").value="";
+  $("feedback").className="msg warn";
+  $("feedback").textContent="Nuevo reto generado. Primero calcula y luego simula.";
+  reset();
+  updateLabels();
+}
+
+function downloadCSV(){
+  const header=["n","t_s","x_m","y_m","vx_m_s","vy_m_s","rapidez_m_s"];
+  const csv=[header.join(","), ...rows.map(r => [
+    r.i, fmt(r.t,4), fmt(r.x,4), fmt(r.y,4), fmt(r.vx,4), fmt(r.vy,4), fmt(r.v,4)
+  ].join(","))].join("\n");
+
+  const blob=new Blob([csv], {type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download = mode==="semi" ? "datos_semiparabolico.csv" : "datos_parabolico.csv";
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+$("semiBtn").onclick=()=>setMode("semi");
+$("paraBtn").onclick=()=>setMode("para");
+$("playBtn").onclick=play;
+$("pauseBtn").onclick=pause;
+$("resetBtn").onclick=reset;
+$("checkBtn").onclick=compare;
+$("newChallengeBtn").onclick=challenge;
+$("csvBtn").onclick=downloadCSV;
+$("tableBtn").onclick=()=>$("tableCard").scrollIntoView({behavior:"smooth"});
+
+Object.values(els).forEach(el=>{
+  el.addEventListener("input", ()=>{
+    reset();
+    updateLabels();
+  });
+});
+
+window.addEventListener("resize", fitCanvas);
+updateLabels();
+setTimeout(fitCanvas, 60);
+</script>
+</body>
+</html>
